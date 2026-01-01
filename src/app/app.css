@@ -15,3 +15,10 @@
   width: 95%;
   margin-inline: auto;
 }
+
+.sessions {
+  height: 550px;
+  box-shadow: 2px 2px 2px 2px hsl(0, 0%, 70%);
+  width: 100%;
+}
+
