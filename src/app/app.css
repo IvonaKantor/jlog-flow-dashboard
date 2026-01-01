@@ -11,4 +11,7 @@
     "six"
     "seven"
     "eight";
+  padding-block: 2rem;
+  width: 95%;
+  margin-inline: auto;
 }
