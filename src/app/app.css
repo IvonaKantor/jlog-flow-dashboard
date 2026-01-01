@@ -1,0 +1,14 @@
+.livemap-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "one"
+    "two"
+    "three"
+    "five"
+    "four"
+    "six"
+    "seven"
+    "eight";
+}
