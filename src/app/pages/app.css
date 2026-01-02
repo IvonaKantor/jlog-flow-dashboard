@@ -1,0 +1,118 @@
+.livemap-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "one"
+    "two"
+    "three"
+    "five"
+    "four"
+    "six"
+    "seven"
+    "eight";
+  padding-block: 2rem;
+  width: 95%;
+  margin-inline: auto;
+}
+
+.map {
+  height: 550px;
+  box-shadow: 2px 2px 2px 2px hsl(0, 0%, 70%);
+  width: 100%;
+}
+
+.sessions {
+  height: 550px;
+  box-shadow: 2px 2px 2px 2px hsl(0, 0%, 70%);
+  width: 100%;
+}
+
+.user-info {
+  height: 550px;
+  box-shadow: 2px 2px 2px 2px hsl(0, 0%, 70%);
+  width: 100%;
+}
+
+.issue-info {
+  height: 550px;
+  box-shadow: 2px 2px 2px 2px hsl(0, 0%, 70%);
+  width: 100%;
+}
+
+.top-platforms {
+  box-shadow: 2px 2px 2px 2px hsl(0, 0%, 70%);
+  width: 100%;
+}
+
+.browsers {
+  box-shadow: 2px 2px 2px 2px hsl(0, 0%, 70%);
+  width: 100%;
+}
+
+.livemap:nth-child(1) {
+  grid-area: one;
+}
+
+.livemap:nth-child(2) {
+  grid-area: two;
+}
+
+.livemap:nth-child(3) {
+  grid-area: three;
+}
+
+.livemap:nth-child(4) {
+  grid-area: four;
+}
+
+.livemap:nth-child(5) {
+  grid-area: five;
+}
+
+.livemap:nth-child(6) {
+  grid-area: six;
+}
+
+.livemap:nth-child(7) {
+  grid-area: seven;
+}
+
+.livemap:nth-child(8) {
+  grid-area: eight;
+}
+
+@media (min-width: 800px) {
+  .livemap-grid {
+    grid-template-areas:
+      "one one one one"
+      "two two two two"
+      "two two two two"
+      "three three three three"
+      "three three three three"
+      "five five five five"
+      "five five five five"
+      "four four six six"
+      "four four six six"
+      "seven seven seven seven"
+      "eight eight eight eight";
+  }
+}
+
+@media (min-width: 1200px) {
+  .livemap-grid {
+    grid-template-areas:
+      "one one one one"
+      "two two two two"
+      "two two two two"
+      "three three three four"
+      "three three three four"
+      "five five five six"
+      "five five five six"
+      "seven seven eight eight";
+  }
+
+  .map {
+    height: 550px;
+  }
+}
