@@ -21,3 +21,21 @@ export interface LogFilter {
   page?: number;
   size?: number;
 }
+
+@Injectable({
+  providedIn: 'root'
+})
+export class LogApiService {
+  private apiUrl = `${environment.apiUrl}/logs`;
+
+  constructor(private http: HttpClient) {}
+
+  getLogs(filter: LogFilter): Observable<{ logs: LogEntry[], total: number }> {
+    let params = new HttpParams();
+    if (filter.level) params = params.set('level', filter.level);
+    if (filter.startDate) params = params.set('startDate', filter.startDate.toISOString());
+    if (filter.endDate) params = params.set('endDate', filter.endDate.toISOString());
+
+    return this.http.get<{ logs: LogEntry[], total: number }>(this.apiUrl, { params });
+  }
+}
