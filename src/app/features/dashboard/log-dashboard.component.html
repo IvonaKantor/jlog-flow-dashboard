@@ -1,0 +1,203 @@
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h1>Log Analytics Dashboard</h1>
+
+    <div class="controls">
+      <mat-form-field appearance="outline" class="time-range-select">
+        <mat-label>Time Range</mat-label>
+        <mat-select [(value)]="selectedTimeRange" (selectionChange)="onTimeRangeChange()">
+          <mat-option *ngFor="let range of timeRanges" [value]="range.value">
+            {{ range.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-slide-toggle
+        [(ngModel)]="autoRefresh"
+        (change)="toggleAutoRefresh()"
+        color="primary">
+        Auto-refresh ({{ refreshInterval }}s)
+      </mat-slide-toggle>
+
+      <button mat-raised-button color="primary" (click)="refresh()" [disabled]="loading">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <div class="loading-overlay" *ngIf="loading">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+
+  <div class="error-message" *ngIf="error">
+    <mat-icon>error</mat-icon>
+    {{ error }}
+    <button mat-button color="primary" (click)="refresh()">Try Again</button>
+  </div>
+
+  <div class="dashboard-content" *ngIf="!loading && !error">
+    <div class="kpi-grid">
+      <mat-card class="kpi-card total">
+        <mat-card-content>
+          <div class="kpi-icon">
+            <mat-icon>list_alt</mat-icon>
+          </div>
+          <div class="kpi-info">
+            <div class="kpi-value">{{ stats?.totalLogs | number }}</div>
+            <div class="kpi-label">Total Logs</div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card errors">
+        <mat-card-content>
+          <div class="kpi-icon">
+            <mat-icon>error</mat-icon>
+          </div>
+          <div class="kpi-info">
+            <div class="kpi-value">{{ stats?.errorCount | number }}</div>
+            <div class="kpi-label">Errors</div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card warnings">
+        <mat-card-content>
+          <div class="kpi-icon">
+            <mat-icon>warning</mat-icon>
+          </div>
+          <div class="kpi-info">
+            <div class="kpi-value">{{ stats?.warnCount | number }}</div>
+            <div class="kpi-label">Warnings</div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card info">
+        <mat-card-content>
+          <div class="kpi-icon">
+            <mat-icon>info</mat-icon>
+          </div>
+          <div class="kpi-info">
+            <div class="kpi-value">{{ stats?.infoCount | number }}</div>
+            <div class="kpi-label">Info</div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card debug">
+        <mat-card-content>
+          <div class="kpi-icon">
+            <mat-icon>bug_report</mat-icon>
+          </div>
+          <div class="kpi-info">
+            <div class="kpi-value">{{ stats?.debugCount | number }}</div>
+            <div class="kpi-label">Debug</div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card rate">
+        <mat-card-content>
+          <div class="kpi-icon">
+            <mat-icon>speed</mat-icon>
+          </div>
+          <div class="kpi-info">
+            <div class="kpi-value">{{ stats?.logsPerSecond | number:'1.1-1' }}</div>
+            <div class="kpi-label">Logs/sec</div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="charts-grid">
+      <mat-card class="chart-card">
+        <mat-card-content>
+          <div echarts [options]="timeSeriesChartOption" class="chart"></div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="chart-card">
+        <mat-card-content>
+          <div echarts [options]="levelDistributionOption" class="chart"></div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <mat-card class="loggers-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>sort</mat-icon>
+          Top Active Loggers
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <table mat-table [dataSource]="topLoggers" class="loggers-table">
+          <ng-container matColumnDef="loggerName">
+            <th mat-header-cell *matHeaderCellDef> Logger</th>
+            <td mat-cell *matCellDef="let logger">
+              <div class="logger-name" [title]="logger.loggerName">
+                {{ logger.loggerName | slice:0:50 }}{{ logger.loggerName.length > 50 ? '...' : '' }}
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="count">
+            <th mat-header-cell *matHeaderCellDef> Count</th>
+            <td mat-cell *matCellDef="let logger">
+              <span class="count-badge">{{ logger.count | number }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="lastMessage">
+            <th mat-header-cell *matHeaderCellDef> Last Message</th>
+            <td mat-cell *matCellDef="let logger">
+              <div class="last-message" [title]="logger.lastMessage">
+                {{ logger.lastMessage | slice:0:80 }}{{ logger.lastMessage.length > 80 ? '...' : '' }}
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="lastTimestamp">
+            <th mat-header-cell *matHeaderCellDef> Last Time</th>
+            <td mat-cell *matCellDef="let logger">
+              {{ logger.lastTimestamp | date:'HH:mm:ss' }}
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedLoggerColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedLoggerColumns;"></tr>
+        </table>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="recent-logs-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>schedule</mat-icon>
+          Recent Logs
+        </mat-card-title>
+        <mat-card-subtitle>Last 15 log entries</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="recent-logs-list">
+          <div *ngFor="let log of recentLogs" class="log-entry"
+               [style.border-left-color]="getLevelColor(log.level)">
+            <div class="log-header">
+              <span class="log-level" [style.color]="getLevelColor(log.level)">
+                <mat-icon class="level-icon">{{ getLevelIcon(log.level) }}</mat-icon>
+                {{ log.level }}
+              </span>
+              <span class="log-time">{{ log.timestamp | date:'HH:mm:ss.SSS' }}</span>
+              <span class="log-logger" *ngIf="log.loggerName">{{ log.loggerName | slice:0:30 }}</span>
+            </div>
+            <div class="log-message">
+              {{ log.message }}
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
