@@ -7,7 +7,7 @@ import {Log} from '../models/log.model';
   providedIn: 'root'
 })
 export class LogService {
-  private apiUrl = 'http://localhost:8080/api/logs';
+  private apiUrl = 'http://localhost:8080/api/log';
 
   constructor(private http: HttpClient) {
   }
