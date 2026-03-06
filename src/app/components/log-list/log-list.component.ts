@@ -1,3 +1,4 @@
+/*
 import { Component, OnInit } from '@angular/core';
 import { LogService } from '../../services/log.service';
 import { Log } from '../../models/log.model';
@@ -7,6 +8,7 @@ import {NgClass} from '@angular/common';
   selector: 'app-log-list',
   template: `
     <div class="log-container">
+      <!-- Tabela logów -->
       <table class="log-table">
         <thead>
         <tr>
@@ -27,6 +29,9 @@ import {NgClass} from '@angular/common';
           <td>{{ log.serviceName }}</td>
           <td>{{ log.message }}</td>
           <td>{{ log.hostName }}</td>
+          <td>
+            <button (click)="viewDetails(log); $event.stopPropagation()">Szczegóły</button>
+          </td>
         </tr>
         </tbody>
       </table>
@@ -97,7 +102,17 @@ export class LogListComponent implements OnInit {
     });
   }
 
+  applyFilters(filters: any) {
+    this.logService.getFilteredLogs(filters).subscribe(logs => {
+      this.logs = logs;
+    });
+  }
+
   selectLog(log: Log) {
+    this.selectedLog = log;
+  }
+
+  viewDetails(log: Log) {
     this.selectedLog = log;
   }
 
@@ -105,4 +120,4 @@ export class LogListComponent implements OnInit {
     this.currentPage = page;
     this.loadLogs();
   }
-}
+}*/
