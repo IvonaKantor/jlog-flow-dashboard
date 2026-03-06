@@ -29,9 +29,10 @@
             <td>{{ log.timestamp | date:'yyyy-MM-dd HH:mm:ss' }}</td>
             <td>
               <span style="padding: 2px 8px; border-radius: 4px;
-                          background: {{log.level === 'ERROR' ? '#f44336' :
+                          background: {{log.level === 'ERROR' ? '#e84b41' :
                                        log.level === 'WARN' ? '#ff9800' :
-                                       log.level === 'INFO' ? '#2196f3' : '#9e9e9e'}};
+                                       log.level === 'INFO' ? '#387bb5' :
+                                       log.level === 'DEBUG' ? '#479e2d': '#848a7e'}};
                           color: white;">
                 {{ log.level }}
               </span>
