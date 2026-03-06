@@ -16,16 +16,23 @@ export interface Log {
   sequence: number;
   loggerClassName: string;
   loggerName: string;
-  level: 'INFO' | 'WARN' | 'ERROR' | 'DEBUG';
+  level: string;
   message: string;
   threadName: string;
   threadId: number;
-  mdc: Record<string, any>;
   ndc: string;
+  mdc: Record<string, any>;
   hostName: string;
   processName: string;
   processId: number;
+  exception?: Exception;
   serviceName: string;
   serviceId: string;
-  exception?: Exception;
+}
+
+export interface LogResponse {
+  pageIndex: number;
+  pageSize: number;
+  pageCount: number;
+  items: Log[];
 }
