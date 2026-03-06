@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
-import { Log, LogResponse } from '../models/log.model';
+import { Observable } from 'rxjs';
+import { Log } from '../models/log.model';
 
 @Injectable({
   providedIn: 'root'
@@ -12,8 +12,6 @@ export class LogService {
   constructor(private http: HttpClient) {}
 
   getLogs(): Observable<Log[]> {
-    return this.http.get<LogResponse>(this.apiUrl).pipe(
-      map(response => response.items)
-    );
+    return this.http.get<Log[]>(this.apiUrl);
   }
 }
