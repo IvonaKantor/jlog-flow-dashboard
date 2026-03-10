@@ -36,3 +36,12 @@ export interface LogResponse {
   pageCount: number;
   items: Log[];
 }
+
+export interface LogFilters {
+  level?: string[];
+  serviceName?: string;
+  hostName?: string;
+  startDate?: string;
+  endDate?: string;
+  search?: string;
+}
