@@ -51,4 +51,8 @@ export class LogService {
       map(response => response.items)
     );
   }
+
+  getServices(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/services`);
+  }
 }
