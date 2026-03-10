@@ -27,6 +27,10 @@ export class LogService {
       });
     }
 
+    if (filters.serviceName) {
+      params = params.set('serviceName', filters.serviceName);
+    }
+
     return this.http.get<LogResponse>(this.apiUrl, {params}).pipe(
       map(response => response.items)
     );
