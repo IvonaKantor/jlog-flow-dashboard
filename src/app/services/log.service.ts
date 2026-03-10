@@ -31,6 +31,10 @@ export class LogService {
       params = params.set('serviceName', filters.serviceName);
     }
 
+    if (filters.hostName) {
+      params = params.set('hostName', filters.hostName);
+    }
+
     return this.http.get<LogResponse>(this.apiUrl, {params}).pipe(
       map(response => response.items)
     );
