@@ -35,6 +35,18 @@ export class LogService {
       params = params.set('hostName', filters.hostName);
     }
 
+    if (filters.startDate) {
+      params = params.set('fromDate', filters.startDate);
+    }
+
+    if (filters.endDate) {
+      params = params.set('toDate', filters.endDate);
+    }
+
+    if (filters.search) {
+      params = params.set('search', filters.search);
+    }
+
     return this.http.get<LogResponse>(this.apiUrl, {params}).pipe(
       map(response => response.items)
     );
