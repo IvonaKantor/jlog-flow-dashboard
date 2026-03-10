@@ -55,4 +55,8 @@ export class LogService {
   getServices(): Observable<string[]> {
     return this.http.get<string[]>(`${this.apiUrl}/services`);
   }
+
+  getHosts(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/hosts`);
+  }
 }
