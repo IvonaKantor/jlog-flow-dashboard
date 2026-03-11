@@ -1,0 +1,171 @@
+<div class="log-dashboard">
+  <div class="header">
+    <div class="logo-container">
+      <img ngSrc="assets/images/logo.png" alt="JLog Flow Logo" class="logo" height="60" width="200">
+    </div>
+
+    <div class="header-stats">
+      <div class="stat-card">
+        <span class="stat-label">Active Services</span>
+        <span class="stat-value">{{ services.length }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Total Logs</span>
+        <span class="stat-value">{{ filteredLogs.length }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="filters-panel">
+    <div class="filters-row">
+      <div class="filter-group">
+        <label>Level:</label>
+        <div class="checkbox-group">
+          @for (level of availableLevels; track level) {
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [value]="level"
+                (change)="toggleLevel(level, $event)"
+                [checked]="filters.level?.includes(level)"
+              >
+              <span class="level-badge" [style.background]="getLevelColor(level)">
+                {{ level }}
+              </span>
+            </label>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="filters-row">
+      <div class="filter-group">
+        <label>Action:</label>
+        <select [(ngModel)]="filters.serviceName" class="filter-select">
+          <option value="">All</option>
+          @for (service of services; track service) {
+            <option [value]="service">{{ service }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Host:</label>
+        <select [(ngModel)]="filters.hostName" class="filter-select">
+          <option value="">All</option>
+          @for (host of hosts; track host) {
+            <option [value]="host">{{ host }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>From:</label>
+        <input
+          type="datetime-local"
+          [(ngModel)]="filters.startDate"
+          class="filter-input"
+        >
+      </div>
+
+      <div class="filter-group">
+        <label>To:</label>
+        <input
+          type="datetime-local"
+          [(ngModel)]="filters.endDate"
+          class="filter-input"
+        >
+      </div>
+    </div>
+
+    <div class="filters-row">
+      <div class="filter-group search-group">
+        <label>Search:</label>
+        <input
+          type="text"
+          [(ngModel)]="filters.search"
+          placeholder="Search within content"
+          class="search-input"
+          (keyup.enter)="applyFilters()"
+        >
+      </div>
+
+      <div class="filter-actions">
+        <button class="btn btn-primary" (click)="applyFilters()">
+          apply filters
+        </button>
+        <button class="btn btn-secondary" (click)="resetFilters()">
+          reset filters
+        </button>
+        <button class="btn btn-success" (click)="loadLogs()">
+          load logs
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    @if (loading) {
+      <div class="loading-indicator">Load data</div>
+    }
+    @if (error) {
+      <div class="error-indicator">{{ error }}</div>
+    }
+    @if (!loading && !error) {
+      <div class="info-indicator">
+        Found <strong>{{ filteredLogs.length }}</strong> logs
+      </div>
+    }
+  </div>
+
+  @if (!loading && !error) {
+    <div class="table-container">
+      <table class="logs-table">
+        <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>Level</th>
+          <th>Action</th>
+          <th>Host</th>
+          <th>Message</th>
+          <th>Exception</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (log of filteredLogs; track log.sequence) {
+            <tr
+              class="log-row"
+              [style.background]="getRowBackground(log.level)"
+            >
+              <td>
+                <span
+                  class="level-badge"
+                  [style.background]="getLevelColor(log.level)"
+                >
+                  {{ log.level }}
+                </span>
+              </td>
+              <td>{{ log.serviceName }}</td>
+              <td>{{ log.hostName }}</td>
+              <td class="message-cell">{{ log.message }}</td>
+              <td>
+                @if (log.exception) {
+                  <details class="exception-details">
+                    <summary>{{ log.exception.exceptionType }}</summary>
+                    <pre>{{ log.exception.message }}</pre>
+                  </details>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="empty-message">
+                No logs match the criteria
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
