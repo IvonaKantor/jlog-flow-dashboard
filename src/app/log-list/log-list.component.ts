@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {CommonModule, NgOptimizedImage} from '@angular/common';
+import {CommonModule} from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LogService } from '../services/log.service';
 import { Log, LogFilters } from '../models/log.model';
@@ -7,7 +7,7 @@ import { Log, LogFilters } from '../models/log.model';
 @Component({
   selector: 'app-log-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgOptimizedImage],
+  imports: [CommonModule, FormsModule],
   templateUrl: './log-list.component.html',
   styleUrls: ['./log-list.component.css']
 })
@@ -126,4 +126,19 @@ export class LogListComponent implements OnInit {
       default: return '#9e9e9e';
     }
   }
+
+  formatDate(timestamp: string): string {
+    if (!timestamp) return '-';
+    const date = new Date(timestamp);
+    return date.toLocaleString('pl-PL', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  }
+
+  protected readonly Object = Object;
 }
