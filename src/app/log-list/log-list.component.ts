@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { LogService } from '../services/log.service';
-import { Log, LogFilters } from '../models/log.model';
+import {FormsModule} from '@angular/forms';
+import {LogService} from '../services/log.service';
+import {Log, LogFilters} from '../models/log.model';
 
 @Component({
   selector: 'app-log-list',
@@ -31,7 +31,8 @@ export class LogListComponent implements OnInit {
 
   availableLevels = ['INFO', 'WARN', 'ERROR', 'DEBUG'];
 
-  constructor(private logService: LogService) {}
+  constructor(private logService: LogService) {
+  }
 
   ngOnInit() {
     this.loadLogs();
@@ -42,7 +43,7 @@ export class LogListComponent implements OnInit {
     this.loading = true;
     this.error = null;
 
-    const hasActiveFilters = this.filters.level  ||
+    const hasActiveFilters = this.filters.level ||
       this.filters.serviceName ||
       this.filters.hostName ||
       this.filters.startDate ||
@@ -110,20 +111,28 @@ export class LogListComponent implements OnInit {
   }
 
   getRowBackground(level: string): string {
-    switch(level) {
-      case 'ERROR': return '#ffebee';
-      case 'WARN': return '#fff3e0';
-      default: return 'white';
+    switch (level) {
+      case 'ERROR':
+        return '#ffebee';
+      case 'WARN':
+        return '#fff3e0';
+      default:
+        return 'white';
     }
   }
 
   getLevelColor(level: string): string {
-    switch(level) {
-      case 'ERROR': return '#f44336';
-      case 'WARN': return '#ff9800';
-      case 'INFO': return '#2196f3';
-      case 'DEBUG': return '#58a824';
-      default: return '#9e9e9e';
+    switch (level) {
+      case 'ERROR':
+        return '#f44336';
+      case 'WARN':
+        return '#ff9800';
+      case 'INFO':
+        return '#2196f3';
+      case 'DEBUG':
+        return '#58a824';
+      default:
+        return '#9e9e9e';
     }
   }
 
@@ -138,6 +147,12 @@ export class LogListComponent implements OnInit {
       minute: '2-digit',
       second: '2-digit'
     });
+  }
+
+  getProcessName(processPath: string): string {
+    if (!processPath) return '-';
+    const parts = processPath.split('\\');
+    return parts[parts.length - 1] || processPath;
   }
 
   protected readonly Object = Object;
