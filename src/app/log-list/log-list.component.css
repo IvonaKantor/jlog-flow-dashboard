@@ -280,11 +280,11 @@ h1 {
 .logo {
   display: block !important;
   width: auto !important;
-  height: 60px !important;          /* Stała wysokość 60px */
-  max-width: 200px !important;      /* Maksymalna szerokość */
-  object-fit: contain !important;   /* Zachowaj proporcje */
-  visibility: visible !important;   /* Widoczne */
-  opacity: 1 !important;            /* Nieprzezroczyste */
+  height: 60px !important;
+  max-width: 200px !important;
+  object-fit: contain !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .header-stats {
@@ -350,5 +350,48 @@ h1 {
 
   .message-cell {
     max-width: 200px;
+  }
+
+  .text-muted {
+    color: #6c757d;
+    font-size: 11px;
+  }
+
+  .no-exception, .no-mdc {
+    color: #999;
+    font-style: italic;
+    font-size: 12px;
+  }
+
+  .mdc-details summary {
+    color: #2196f3;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 0;
+  }
+
+  .mdc-details pre {
+    background: #f5f5f5;
+    padding: 8px;
+    border-radius: 4px;
+    margin-top: 8px;
+    font-size: 11px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .stack-trace {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #d32f2f;
+  }
+
+  .stack-frame {
+    font-size: 11px;
+    padding: 2px 0;
+    color: #555;
+    font-family: monospace;
   }
 }
