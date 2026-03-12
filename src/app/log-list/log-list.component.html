@@ -1,7 +1,11 @@
 <div class="log-dashboard">
   <div class="header">
     <div class="logo-container">
-      <img ngSrc="assets/images/logo.png" alt="JLog Flow Logo" class="logo" height="60" width="200">
+      <img
+        src="assets/images/logo.png"
+        alt="JLog Flow Logo"
+        class="logo"
+      >
     </div>
 
     <div class="header-stats">
@@ -15,7 +19,6 @@
       </div>
     </div>
   </div>
-
   <div class="filters-panel">
     <div class="filters-row">
       <div class="filter-group">
@@ -40,7 +43,7 @@
 
     <div class="filters-row">
       <div class="filter-group">
-        <label>Action:</label>
+        <label>Service:</label>
         <select [(ngModel)]="filters.serviceName" class="filter-select">
           <option value="">All</option>
           @for (service of services; track service) {
@@ -92,21 +95,20 @@
 
       <div class="filter-actions">
         <button class="btn btn-primary" (click)="applyFilters()">
-          apply filters
+          Apply Filters
         </button>
         <button class="btn btn-secondary" (click)="resetFilters()">
-          reset filters
+          Reset Filters
         </button>
         <button class="btn btn-success" (click)="loadLogs()">
-          load logs
+          Refresh Logs
         </button>
       </div>
     </div>
   </div>
-
   <div class="status-bar">
     @if (loading) {
-      <div class="loading-indicator">Load data</div>
+      <div class="loading-indicator">Loading data...</div>
     }
     @if (error) {
       <div class="error-indicator">{{ error }}</div>
@@ -117,7 +119,6 @@
       </div>
     }
   </div>
-
   @if (!loading && !error) {
     <div class="table-container">
       <table class="logs-table">
@@ -127,39 +128,72 @@
           <th>Level</th>
           <th>Service</th>
           <th>Host</th>
+          <th>Process</th>
+          <th>Thread</th>
+          <th>Sequence</th>
           <th>Message</th>
           <th>Exception</th>
+          <th>MDC</th>
         </tr>
         </thead>
         <tbody>
           @for (log of filteredLogs; track log.sequence) {
-            <tr
-              class="log-row"
-              [style.background]="getRowBackground(log.level)"
-            >
+            <tr [style.background]="getRowBackground(log.level)">
+              <td>{{ formatDate(log.timestamp) }}</td>
               <td>
-                <span
-                  class="level-badge"
-                  [style.background]="getLevelColor(log.level)"
-                >
+                <span class="level-badge" [style.background]="getLevelColor(log.level)">
                   {{ log.level }}
                 </span>
               </td>
-              <td>{{ log.serviceName }}</td>
+              <td>
+                <div>{{ log.serviceName }}</div>
+                <small class="text-muted">{{ log.serviceId }}</small>
+              </td>
               <td>{{ log.hostName }}</td>
+              <td>
+                <div>{{ getProcessName(log.processName) }}</div>
+                <small class="text-muted">PID: {{ log.processId }}</small>
+              </td>
+              <td>
+                <div>{{ log.threadName }}</div>
+                <small class="text-muted">ID: {{ log.threadId }}</small>
+              </td>
+              <td>{{ log.sequence }}</td>
               <td class="message-cell">{{ log.message }}</td>
               <td>
                 @if (log.exception) {
                   <details class="exception-details">
                     <summary>{{ log.exception.exceptionType }}</summary>
                     <pre>{{ log.exception.message }}</pre>
+                    @if (log.exception.frames.length > 0) {
+                      <div class="stack-trace">
+                        <strong>Stack trace:</strong>
+                        @for (frame of log.exception.frames; track frame.line) {
+                          <div class="stack-frame">
+                            at {{ frame.class }}.{{ frame.method }}(:{{ frame.line }})
+                          </div>
+                        }
+                      </div>
+                    }
                   </details>
+                } @else {
+                  <span class="no-exception">-</span>
+                }
+              </td>
+              <td>
+                @if (log.mdc && Object.keys(log.mdc).length > 0) {
+                  <details class="mdc-details">
+                    <summary>Context</summary>
+                    <pre>{{ log.mdc | json }}</pre>
+                  </details>
+                } @else {
+                  <span class="no-mdc">-</span>
                 }
               </td>
             </tr>
           } @empty {
             <tr>
-              <td colspan="6" class="empty-message">
+              <td colspan="10" class="empty-message">
                 No logs match the criteria
               </td>
             </tr>
