@@ -70,7 +70,7 @@ export class LogListComponent implements OnInit {
   }
 
   loadFilters() {
-    this.logService.getServices().subscribe({
+    /*this.logService.getServices().subscribe({
       next: (data) => this.services = data,
       error: (err) => console.error('Action loading error:', err)
     });
@@ -78,7 +78,9 @@ export class LogListComponent implements OnInit {
     this.logService.getHosts().subscribe({
       next: (data) => this.hosts = data,
       error: (err) => console.error('Host loading error:', err)
-    });
+    });*/
+    this.services = [];
+    this.hosts = [];
   }
 
   toggleLevel(level: string, event: Event) {
