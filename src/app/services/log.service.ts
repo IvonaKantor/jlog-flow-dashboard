@@ -7,7 +7,7 @@ import {Log, LogResponse, LogFilters} from '../models/log.model';
   providedIn: 'root'
 })
 export class LogService {
-  private apiUrl = 'http://localhost:8080/v1/log';
+  private readonly apiUrl = 'http://localhost:8080/v1/log';
 
   constructor(private http: HttpClient) {
   }

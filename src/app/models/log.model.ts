@@ -11,12 +11,14 @@ export interface Exception {
   frames: ExceptionFrame[];
 }
 
+export type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR';
+
 export interface Log {
   timestamp: string;
   sequence: number;
   loggerClassName: string;
   loggerName: string;
-  level: string;
+  level: LogLevel;
   message: string;
   threadName: string;
   threadId: number;

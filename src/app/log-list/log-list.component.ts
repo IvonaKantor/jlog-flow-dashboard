@@ -3,6 +3,7 @@ import {CommonModule, NgOptimizedImage} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {LogService} from '../services/log.service';
 import {Log, LogFilters} from '../models/log.model';
+import {LoggerService} from '../services/Logger.service';
 
 @Component({
   selector: 'app-log-list',
@@ -18,7 +19,7 @@ export class LogListComponent implements OnInit {
   hosts: string[] = [];
 
   // Pagination
-  pageSizeOptions = [10, 25, 50, 100];
+  readonly pageSizeOptions = [10, 25, 50, 100];
   pageSize = 25;
   pageIndex = 0;
 
@@ -34,10 +35,12 @@ export class LogListComponent implements OnInit {
     search: ''
   };
 
-  availableLevels = ['INFO', 'WARN', 'ERROR', 'DEBUG'];
+  readonly availableLevels = ['INFO', 'WARN', 'ERROR', 'DEBUG'];
 
-  constructor(private logService: LogService) {
-  }
+  constructor(
+    private readonly logService: LogService,
+    private readonly logger: LoggerService
+  ) {}
 
   ngOnInit() {
     this.loadLogs();
@@ -65,12 +68,12 @@ export class LogListComponent implements OnInit {
         this.filteredLogs = data;
         this.updatePagination();
         this.loading = false;
-        console.log('Logs loaded:', data.length);
+        this.logger.debug('Logs loaded', {count: data.length});
       },
       error: (err) => {
         this.error = 'Failed to load logs: ' + err.message;
         this.loading = false;
-        console.error('Error:', err);
+        this.logger.error('Failed to load logs', err);
       }
     });
   }
@@ -104,13 +107,13 @@ export class LogListComponent implements OnInit {
 
   loadFilters() {
     this.logService.getServices().subscribe({
-      next: (data) => this.services = data,
-      error: (err) => console.error('Action loading error:', err)
+      next: (data) => (this.services = data),
+      error: (err) => this.logger.error('Failed to load service names', err)
     });
 
     this.logService.getHosts().subscribe({
-      next: (data) => this.hosts = data,
-      error: (err) => console.error('Host loading error:', err)
+      next: (data) => (this.hosts = data),
+      error: (err) => this.logger.error('Failed to load host names', err)
     });
   }
 

@@ -13,7 +13,11 @@ import { LogListComponent } from './log-list/log-list.component';
   styles: [`
     main {
       min-height: 100vh;
-      background: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 32px 16px 80px;
+      background: transparent;
     }
   `]
 })
