@@ -2,10 +2,7 @@
   <div class="header">
     <div class="logo-container">
       <img
-        src="assets/images/logo.png"
-        alt="JLog Flow Logo"
-        class="logo"
-      >
+        ngSrc="{{ 'logo.jpg' }}" alt="JLog Flow Logo" class="logo" fill>
     </div>
 
     <div class="header-stats">
@@ -137,7 +134,7 @@
         </tr>
         </thead>
         <tbody>
-          @for (log of filteredLogs; track log.sequence) {
+          @for (log of pagedLogs; track $index + '_' + log.sequence + '_' + log.timestamp) {
             <tr [style.background]="getRowBackground(log.level)">
               <td>{{ formatDate(log.timestamp) }}</td>
               <td>
@@ -200,6 +197,37 @@
           }
         </tbody>
       </table>
+
+      <div class="table-footer">
+        <div class="footer-left">
+          Showing
+          <strong>{{ pagedLogs.length ? (pageIndex * pageSize + 1) : 0 }}</strong>
+          -
+          <strong>{{ pageIndex * pageSize + pagedLogs.length }}</strong>
+          of
+          <strong>{{ filteredLogs.length }}</strong>
+          logs
+        </div>
+        <div class="footer-right">
+          <button class="footer-btn" (click)="setPage(pageIndex - 1)" [disabled]="pageIndex === 0">
+            Previous
+          </button>
+          <span class="footer-page">
+            Page <strong>{{ pageIndex + 1 }}</strong> / <strong>{{ totalPages }}</strong>
+          </span>
+          <button class="footer-btn" (click)="setPage(pageIndex + 1)" [disabled]="pageIndex + 1 >= totalPages">
+            Next
+          </button>
+          <label class="footer-page-size">
+            Page size:
+            <select [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange($event)">
+              @for (size of pageSizeOptions; track size) {
+                <option [value]="size">{{ size }}</option>
+              }
+            </select>
+          </label>
+        </div>
+      </div>
     </div>
   }
 </div>

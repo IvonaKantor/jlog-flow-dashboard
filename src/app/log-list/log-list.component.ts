@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {CommonModule} from '@angular/common';
+import {CommonModule, NgOptimizedImage} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {LogService} from '../services/log.service';
 import {Log, LogFilters} from '../models/log.model';
@@ -7,7 +7,7 @@ import {Log, LogFilters} from '../models/log.model';
 @Component({
   selector: 'app-log-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgOptimizedImage],
   templateUrl: './log-list.component.html',
   styleUrls: ['./log-list.component.css']
 })
@@ -16,6 +16,11 @@ export class LogListComponent implements OnInit {
   filteredLogs: Log[] = [];
   services: string[] = [];
   hosts: string[] = [];
+
+  // Pagination
+  pageSizeOptions = [10, 25, 50, 100];
+  pageSize = 25;
+  pageIndex = 0;
 
   loading = true;
   error: string | null = null;
@@ -58,6 +63,7 @@ export class LogListComponent implements OnInit {
       next: (data) => {
         this.logs = data;
         this.filteredLogs = data;
+        this.updatePagination();
         this.loading = false;
         console.log('Logs loaded:', data.length);
       },
@@ -69,8 +75,35 @@ export class LogListComponent implements OnInit {
     });
   }
 
+  private updatePagination() {
+    // Ensure current page is in range after filtering / reloading data
+    const total = this.totalPages;
+    if (this.pageIndex >= total) {
+      this.pageIndex = Math.max(0, total - 1);
+    }
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredLogs.length / this.pageSize));
+  }
+
+  get pagedLogs(): Log[] {
+    const start = this.pageIndex * this.pageSize;
+    return this.filteredLogs.slice(start, start + this.pageSize);
+  }
+
+  setPage(index: number) {
+    this.pageIndex = Math.max(0, Math.min(index, this.totalPages - 1));
+  }
+
+  onPageSizeChange(newSize: number | string) {
+    const parsed = typeof newSize === 'string' ? parseInt(newSize, 10) : newSize;
+    this.pageSize = Number.isFinite(parsed) && parsed > 0 ? parsed : this.pageSize;
+    this.setPage(0);
+  }
+
   loadFilters() {
-    /*this.logService.getServices().subscribe({
+    this.logService.getServices().subscribe({
       next: (data) => this.services = data,
       error: (err) => console.error('Action loading error:', err)
     });
@@ -78,9 +111,7 @@ export class LogListComponent implements OnInit {
     this.logService.getHosts().subscribe({
       next: (data) => this.hosts = data,
       error: (err) => console.error('Host loading error:', err)
-    });*/
-    this.services = [];
-    this.hosts = [];
+    });
   }
 
   toggleLevel(level: string, event: Event) {
