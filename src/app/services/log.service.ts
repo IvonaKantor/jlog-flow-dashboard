@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {Observable, map} from 'rxjs';
+import {Observable, map, catchError, throwError} from 'rxjs';
 import {Log, LogResponse, LogFilters} from '../models/log.model';
 
 @Injectable({
@@ -18,13 +18,17 @@ export class LogService {
     );
   }
 
-  getFilteredLogs(filters: LogFilters): Observable<Log[]> {
+  private buildFilterParams(filters: LogFilters, useCommaSeparatedLevels = true): HttpParams {
     let params = new HttpParams();
 
     if (filters.level && filters.level.length > 0) {
-      filters.level.forEach(level => {
-        params = params.append('level', level);
-      });
+      if (useCommaSeparatedLevels) {
+        params = params.set('level', filters.level.join(','));
+      } else {
+        filters.level.forEach(level => {
+          params = params.append('level', level);
+        });
+      }
     }
 
     if (filters.serviceName) {
@@ -47,8 +51,24 @@ export class LogService {
       params = params.set('search', filters.search);
     }
 
+    return params;
+  }
+
+  getFilteredLogs(filters: LogFilters): Observable<Log[]> {
+    const params = this.buildFilterParams(filters, true);
+
     return this.http.get<LogResponse>(this.apiUrl, {params}).pipe(
-      map(response => response.items)
+      map(response => response.items),
+      catchError(err => {
+        
+        if (filters.level && filters.level.length > 1) {
+          const fallbackParams = this.buildFilterParams(filters, false);
+          return this.http.get<LogResponse>(this.apiUrl, {params: fallbackParams}).pipe(
+            map(response => response.items)
+          );
+        }
+        return throwError(() => err);
+      })
     );
   }
 

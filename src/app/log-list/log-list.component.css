@@ -1,7 +1,10 @@
 .log-dashboard {
   padding: 24px;
   font-family: var(--font), serif;
+  width: 100%;
   max-width: 1400px;
+  min-width: 800px;
+  flex: 1 1 100%;
   margin: 0 auto;
   background: var(--surface);
   border-radius: calc(var(--radius) + 4px);
@@ -45,7 +48,7 @@ h1 {
   font-size: 13px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
   color: rgba(255,255,255,0.9);
 }
 
@@ -181,6 +184,8 @@ h1 {
 }
 
 .table-container {
+  width: 100%;
+  min-width: 900px;
   overflow: auto;
   max-height: 520px;
   border-radius: 16px;
@@ -197,6 +202,8 @@ h1 {
 
 .logs-table {
   width: 100%;
+  min-width: 900px;
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: 14px;
 }
@@ -414,6 +421,11 @@ h1 {
 @media (max-width: 768px) {
   .log-dashboard {
     padding: 12px;
+    min-width: auto;
+  }
+
+  .table-container {
+    min-width: auto;
   }
 
   .filters-row {
