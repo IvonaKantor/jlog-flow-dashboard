@@ -17,7 +17,7 @@ export class LogListComponent implements OnInit {
   filteredLogs: Log[] = [];
   services: string[] = [];
   hosts: string[] = [];
- 
+
   readonly pageSizeOptions = [10, 25, 50, 100];
   pageSize = 25;
   pageIndex = 0;
@@ -77,7 +77,7 @@ export class LogListComponent implements OnInit {
     });
   }
 
-  private updatePagination() { 
+  private updatePagination() {
     const total = this.totalPages;
     if (this.pageIndex >= total) {
       this.pageIndex = Math.max(0, total - 1);
