@@ -1,6 +1,6 @@
 .log-dashboard {
   padding: 24px;
-  font-family: var(--font);
+  font-family: var(--font), serif;
   max-width: 1400px;
   margin: 0 auto;
   background: var(--surface);
