@@ -17,8 +17,7 @@ export class LogListComponent implements OnInit {
   filteredLogs: Log[] = [];
   services: string[] = [];
   hosts: string[] = [];
-
-  // Pagination
+ 
   readonly pageSizeOptions = [10, 25, 50, 100];
   pageSize = 25;
   pageIndex = 0;
@@ -78,8 +77,7 @@ export class LogListComponent implements OnInit {
     });
   }
 
-  private updatePagination() {
-    // Ensure current page is in range after filtering / reloading data
+  private updatePagination() { 
     const total = this.totalPages;
     if (this.pageIndex >= total) {
       this.pageIndex = Math.max(0, total - 1);
