@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {CommonModule, NgOptimizedImage} from '@angular/common';
 import {FormsModule} from '@angular/forms';
+import {forkJoin} from 'rxjs';
 import {LogService} from '../services/log.service';
 import {Log, LogFilters} from '../models/log.model';
 import {LoggerService} from '../services/Logger.service';
@@ -18,8 +19,8 @@ export class LogListComponent implements OnInit {
   services: string[] = [];
   hosts: string[] = [];
 
-  readonly pageSizeOptions = [10, 25, 50, 100];
-  pageSize = 25;
+  readonly pageSizeOptions = [25, 50, 100, 200];
+  pageSize = 100;
   pageIndex = 0;
 
   loading = true;
@@ -50,30 +51,105 @@ export class LogListComponent implements OnInit {
     this.loading = true;
     this.error = null;
 
-    const hasActiveFilters = this.filters.level ||
-      this.filters.serviceName ||
-      this.filters.hostName ||
-      this.filters.startDate ||
-      this.filters.endDate ||
-      this.filters.search;
+    const hasActiveFilters = (this.filters.level?.length ?? 0) > 0 ||
+      !!this.filters.serviceName ||
+      !!this.filters.hostName ||
+      !!this.filters.startDate ||
+      !!this.filters.endDate ||
+      !!this.filters.search;
 
-    const logsObservable = hasActiveFilters
-      ? this.logService.getFilteredLogs(this.filters)
-      : this.logService.getLogs();
+    if (hasActiveFilters) {
+      this.loadFilteredLogs();
+    } else {
+      this.loadLatestLogs();
+    }
+  }
 
-    logsObservable.subscribe({
-      next: (data) => {
-        this.logs = data;
-        this.filteredLogs = data;
-        this.updatePagination();
-        this.loading = false;
-        this.logger.debug('Logs loaded', {count: data.length});
+  private loadLatestLogs() {
+    const pageSize = this.pageSize;
+
+    this.logService.getLogsResponse(pageSize, 0).subscribe({
+      next: (response) => {
+        const lastPageIndex = Math.max(0, response.pageCount - 1);
+        if (lastPageIndex === 0) {
+          this.applyLoadedLogs(response.items);
+          return;
+        }
+
+        this.logService.getLogsResponse(pageSize, lastPageIndex).subscribe({
+          next: (lastPageResponse) => this.applyLoadedLogs(lastPageResponse.items),
+          error: (err) => this.handleLoadError(err)
+        });
       },
-      error: (err) => {
-        this.error = 'Failed to load logs: ' + err.message;
-        this.loading = false;
-        this.logger.error('Failed to load logs', err);
-      }
+      error: (err) => this.handleLoadError(err)
+    });
+  }
+
+  private loadFilteredLogs() {
+    const pageSize = this.pageSize;
+
+    const multiLevelFilter = (this.filters.level?.length ?? 0) > 1;
+    const allowedLevels = new Set(this.filters.level ?? []);
+
+    const requestFilters: LogFilters = {
+      ...this.filters,
+      level: multiLevelFilter ? [] : this.filters.level
+    };
+
+    const maxPagesToScan = 5;
+
+    this.logService.getFilteredLogsResponse(requestFilters, pageSize, 0).subscribe({
+      next: (response) => {
+        const lastPageIndex = Math.max(0, response.pageCount - 1);
+        const startPageIndex = Math.max(0, lastPageIndex - (maxPagesToScan - 1));
+
+        const pageIndices: number[] = [];
+        for (let i = lastPageIndex; i >= startPageIndex; i--) {
+          pageIndices.push(i);
+        }
+
+        const requests = pageIndices.map(pageIndex =>
+          this.logService.getFilteredLogsResponse(requestFilters, pageSize, pageIndex)
+        );
+
+        forkJoin(requests).subscribe({
+          next: (responses) => {
+            const mergedItems = responses.flatMap(r => r.items ?? []);
+            const filteredItems = multiLevelFilter
+              ? mergedItems.filter(log => allowedLevels.has(log.level))
+              : mergedItems;
+
+            this.applyLoadedLogs(filteredItems);
+          },
+          error: (err) => this.handleLoadError(err)
+        });
+      },
+      error: (err) => this.handleLoadError(err)
+    });
+  }
+
+  private applyLoadedLogs(data: Log[]) {
+    // Ensure newest logs appear first (some backends return oldest-first per page).
+    const sorted = this.sortLogsByTimestampDesc(data);
+
+    this.logs = sorted;
+    this.filteredLogs = sorted;
+    this.updatePagination();
+    this.loading = false;
+    this.logger.debug('Logs loaded', {count: data.length});
+  }
+
+  private handleLoadError(err: any) {
+    this.error = 'Failed to load logs: ' + err?.message;
+    this.loading = false;
+    this.logger.error('Failed to load logs', err);
+  }
+
+  private sortLogsByTimestampDesc(logs: Log[]): Log[] {
+    return [...logs].sort((a, b) => {
+      const ta = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+      const tb = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+      return tb - ta;
     });
   }
 
