@@ -9,63 +9,96 @@ import {Log, LogResponse, LogFilters} from '../models/log.model';
 export class LogService {
   private readonly apiUrl = 'http://localhost:8080/v1/log';
 
-  constructor(private http: HttpClient) {
-  }
+  constructor(private http: HttpClient) {}
 
-  getLogs(): Observable<Log[]> {
-    return this.http.get<LogResponse>(this.apiUrl).pipe(
-      map(response => response.items)
-    );
-  }
-
-  private buildFilterParams(filters: LogFilters, useCommaSeparatedLevels = true): HttpParams {
+  private buildParams(
+    filters?: LogFilters,
+    pageSize?: number,
+    pageIndex?: number,
+    useCommaSeparatedLevels = true
+  ): HttpParams {
     let params = new HttpParams();
 
-    if (filters.level && filters.level.length > 0) {
-      if (useCommaSeparatedLevels) {
-        params = params.set('level', filters.level.join(','));
-      } else {
-        filters.level.forEach(level => {
-          params = params.append('level', level);
-        });
+    if (filters) {
+      if (filters.level && filters.level.length > 0) {
+        if (useCommaSeparatedLevels) {
+          params = params.set('level', filters.level.join(','));
+        } else {
+          filters.level.forEach(level => {
+            params = params.append('level', level);
+          });
+        }
+      }
+
+      if (filters.serviceName) {
+        params = params.set('serviceName', filters.serviceName);
+      }
+
+      if (filters.hostName) {
+        params = params.set('hostName', filters.hostName);
+      }
+
+      if (filters.startDate) {
+        params = params.set('fromDate', filters.startDate);
+      }
+
+      if (filters.endDate) {
+        params = params.set('toDate', filters.endDate);
+      }
+
+      if (filters.search) {
+        params = params.set('search', filters.search);
       }
     }
 
-    if (filters.serviceName) {
-      params = params.set('serviceName', filters.serviceName);
+    if (pageSize != null) {
+      params = params.set('pageSize', pageSize.toString());
     }
 
-    if (filters.hostName) {
-      params = params.set('hostName', filters.hostName);
-    }
-
-    if (filters.startDate) {
-      params = params.set('fromDate', filters.startDate);
-    }
-
-    if (filters.endDate) {
-      params = params.set('toDate', filters.endDate);
-    }
-
-    if (filters.search) {
-      params = params.set('search', filters.search);
+    if (pageIndex != null) {
+      params = params.set('pageIndex', pageIndex.toString());
     }
 
     return params;
   }
 
-  getFilteredLogs(filters: LogFilters): Observable<Log[]> {
-    const params = this.buildFilterParams(filters, true);
+  getLogs(pageSize?: number, pageIndex?: number): Observable<Log[]> {
+    const params = this.buildParams(undefined, pageSize, pageIndex);
+    return this.http.get<LogResponse>(this.apiUrl, {params}).pipe(
+      map(response => response.items)
+    );
+  }
+
+  getLogsResponse(pageSize?: number, pageIndex?: number): Observable<LogResponse> {
+    const params = this.buildParams(undefined, pageSize, pageIndex);
+    return this.http.get<LogResponse>(this.apiUrl, {params});
+  }
+
+  getFilteredLogs(filters: LogFilters, pageSize?: number, pageIndex?: number): Observable<Log[]> {
+    const params = this.buildParams(filters, pageSize, pageIndex, true);
 
     return this.http.get<LogResponse>(this.apiUrl, {params}).pipe(
       map(response => response.items),
       catchError(err => {
-        
         if (filters.level && filters.level.length > 1) {
-          const fallbackParams = this.buildFilterParams(filters, false);
+          const fallbackParams = this.buildParams(filters, pageSize, pageIndex, false);
           return this.http.get<LogResponse>(this.apiUrl, {params: fallbackParams}).pipe(
             map(response => response.items)
           );
+        }
+        return throwError(() => err);
+      })
+    );
+  }
+
+  getFilteredLogsResponse(filters: LogFilters, pageSize?: number, pageIndex?: number): Observable<LogResponse> {
+    const params = this.buildParams(filters, pageSize, pageIndex, true);
+
+    return this.http.get<LogResponse>(this.apiUrl, {params}).pipe(
+      catchError(err => {
+        if (filters.level && filters.level.length > 1) {
+          const fallbackParams = this.buildParams(filters, pageSize, pageIndex, false);
+          return this.http.get<LogResponse>(this.apiUrl, {params: fallbackParams});
         }
         return throwError(() => err);
       })
