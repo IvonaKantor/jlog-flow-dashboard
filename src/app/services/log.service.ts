@@ -21,12 +21,12 @@ export class LogService {
 
     if (filters) {
       if (filters.level && filters.level.length > 0) {
-        if (useCommaSeparatedLevels) {
-          params = params.set('level', filters.level.join(','));
-        } else {
+        if (filters.level.length > 1) {
           filters.level.forEach(level => {
             params = params.append('level', level);
           });
+        } else {
+          params = params.set('level', filters.level[0]);
         }
       }
 
