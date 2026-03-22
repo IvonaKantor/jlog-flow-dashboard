@@ -96,16 +96,25 @@ export class LogListComponent implements OnInit {
       level: multiLevelFilter ? [] : this.filters.level
     };
 
-    const maxPagesToScan = 5;
+    const hasDateFilter = !!this.filters.startDate || !!this.filters.endDate;
+    const maxPagesToScan = hasDateFilter ? Number.MAX_SAFE_INTEGER : 5;
 
     this.logService.getFilteredLogsResponse(requestFilters, pageSize, 0).subscribe({
       next: (response) => {
         const lastPageIndex = Math.max(0, response.pageCount - 1);
-        const startPageIndex = Math.max(0, lastPageIndex - (maxPagesToScan - 1));
+        const startPageIndex = hasDateFilter
+          ? 0
+          : Math.max(0, lastPageIndex - (maxPagesToScan - 1));
 
         const pageIndices: number[] = [];
-        for (let i = lastPageIndex; i >= startPageIndex; i--) {
-          pageIndices.push(i);
+        if (hasDateFilter) {
+          for (let i = 0; i <= lastPageIndex; i++) {
+            pageIndices.push(i);
+          }
+        } else {
+          for (let i = lastPageIndex; i >= startPageIndex; i--) {
+            pageIndices.push(i);
+          }
         }
 
         const requests = pageIndices.map(pageIndex =>
