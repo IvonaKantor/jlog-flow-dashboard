@@ -39,11 +39,18 @@ export class LogService {
       }
 
       if (filters.startDate) {
-        params = params.set('fromDate', filters.startDate);
+        const from = new Date(filters.startDate);
+        if (!isNaN(from.getTime())) {
+          params = params.set('fromDate', from.toISOString());
+        }
       }
 
       if (filters.endDate) {
-        params = params.set('toDate', filters.endDate);
+        let to = new Date(filters.endDate);
+        if (!isNaN(to.getTime())) {
+          to = new Date(to.getTime() + 999);
+          params = params.set('toDate', to.toISOString());
+        }
       }
 
       if (filters.search) {
