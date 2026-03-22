@@ -21,7 +21,7 @@ h1 {
 }
 
 .filters-panel {
-  background: linear-gradient(135deg, rgba(47, 126, 50, 0.9) 0%, rgba(170, 167, 172, 0.8) 100%);
+  background: linear-gradient(135deg, #255920 0%, #7cdc61 100%);
   padding: 22px;
   border-radius: var(--radius);
   margin-bottom: 24px;
