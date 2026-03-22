@@ -115,9 +115,11 @@ export class LogListComponent implements OnInit {
         forkJoin(requests).subscribe({
           next: (responses) => {
             const mergedItems = responses.flatMap(r => r.items ?? []);
-            const filteredItems = multiLevelFilter
+            let filteredItems = multiLevelFilter
               ? mergedItems.filter(log => allowedLevels.has(log.level))
               : mergedItems;
+
+            filteredItems = this.applyClientSideFilters(filteredItems, requestFilters);
 
             this.applyLoadedLogs(filteredItems);
           },
@@ -150,6 +152,44 @@ export class LogListComponent implements OnInit {
       const ta = a.timestamp ? new Date(a.timestamp).getTime() : 0;
       const tb = b.timestamp ? new Date(b.timestamp).getTime() : 0;
       return tb - ta;
+    });
+  }
+
+  private applyClientSideFilters(logs: Log[], filters: LogFilters): Log[] {
+    return logs.filter(log => {
+      if (filters.hostName && log.hostName?.trim() !== filters.hostName.trim()) {
+        return false;
+      }
+
+      if (filters.serviceName && log.serviceName?.trim() !== filters.serviceName.trim()) {
+        return false;
+      }
+
+      if (filters.startDate) {
+        const from = new Date(filters.startDate).getTime();
+        const cur = new Date(log.timestamp).getTime();
+        if (Number.isFinite(from) && cur < from) {
+          return false;
+        }
+      }
+
+      if (filters.endDate) {
+        const to = new Date(filters.endDate).getTime();
+        const cur = new Date(log.timestamp).getTime();
+        if (Number.isFinite(to) && cur > to) {
+          return false;
+        }
+      }
+
+      if (filters.search) {
+        const text = filters.search.trim().toLowerCase();
+        const haystack = (log.message + ' ' + log.hostName + ' ' + log.serviceName + ' ' + (log.exception?.message ?? '')).toLowerCase();
+        if (!haystack.includes(text)) {
+          return false;
+        }
+      }
+
+      return true;
     });
   }
 
