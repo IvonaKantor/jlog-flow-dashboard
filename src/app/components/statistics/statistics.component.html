@@ -1,0 +1,52 @@
+<div class="statistics-container">
+  @if (barChartData.length > 0) {
+    <div class="chart-wrapper">
+      <div class="chart-title">Number of logs per level</div>
+      <div class="chart-canvas chart-canvas-bars" [style.height.px]="barChartCanvasHeight">
+        <ngx-charts-bar-horizontal
+          [results]="barChartData"
+          [scheme]="barChartColors"
+          [animations]="false"
+          [tooltipDisabled]="true"
+          [showDataLabel]="true"
+          [dataLabelFormatting]="barDataLabelFormatting"
+          [barPadding]="8"
+        >
+        </ngx-charts-bar-horizontal>
+      </div>
+    </div>
+
+    <div class="chart-wrapper">
+      <div class="chart-title">Percentage of logs per level</div>
+      <div class="chart-canvas chart-canvas-pie">
+        <div class="pie-chart-shell">
+          <ngx-charts-pie-chart
+            [results]="pieChartData"
+            [scheme]="pieChartColors"
+            [view]="pieChartView"
+            [margins]="pieChartMargins"
+            [animations]="false"
+            [tooltipDisabled]="true"
+            [labels]="false"
+          >
+          </ngx-charts-pie-chart>
+
+          <div class="pie-chart-labels" aria-hidden="true">
+            @for (label of pieLabelPositions; track label.level) {
+              <div
+                class="pie-slice-label"
+                [style.left.%]="label.left"
+                [style.top.%]="label.top"
+                [attr.title]="label.level"
+              >
+                {{ label.value }}
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="no-data">No logs match the criteria</div>
+  }
+</div>
