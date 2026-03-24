@@ -5,11 +5,12 @@ import {forkJoin} from 'rxjs';
 import {LogService} from '../services/log.service';
 import {Log, LogFilters} from '../models/log.model';
 import {LoggerService} from '../services/Logger.service';
+import {StatisticsComponent} from '../components/statistics/statistics.component';
 
 @Component({
   selector: 'app-log-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgOptimizedImage],
+  imports: [CommonModule, FormsModule, NgOptimizedImage, StatisticsComponent],
   templateUrl: './log-list.component.html',
   styleUrls: ['./log-list.component.css']
 })
