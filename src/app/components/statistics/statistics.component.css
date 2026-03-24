@@ -1,0 +1,117 @@
+.statistics-container {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(320px, 1fr));
+  gap: 24px;
+  width: min(100%, 820px);
+  margin: 0 auto;
+  padding: 4px 0 0;
+}
+
+.chart-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.chart-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #2f3b2f;
+  text-align: center;
+}
+
+.chart-canvas {
+  width: 100%;
+  height: 280px;
+  overflow: visible;
+}
+
+.chart-canvas-pie {
+  height: auto;
+  display: flex;
+  justify-content: center;
+}
+
+.pie-chart-shell {
+  position: relative;
+  width: 300px;
+  height: 260px;
+  margin: 0 auto;
+}
+
+.pie-chart-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.pie-slice-label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+  white-space: nowrap;
+}
+
+.no-data {
+  padding: 20px;
+  text-align: center;
+  color: #999;
+  font-size: 12px;
+}
+
+:host ::ng-deep .ngx-charts .bar,
+:host ::ng-deep .ngx-charts .arc,
+:host ::ng-deep .ngx-charts .pie-label,
+:host ::ng-deep .ngx-charts .gridline-path,
+:host ::ng-deep .ngx-charts .tick text {
+  transition: none !important;
+}
+
+:host ::ng-deep .ngx-charts .bar:hover,
+:host ::ng-deep .ngx-charts .arc:hover,
+:host ::ng-deep .ngx-charts .arc.active,
+:host ::ng-deep .ngx-charts .bar.active {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+:host ::ng-deep .ngx-charts .arc,
+:host ::ng-deep .ngx-charts .bar {
+  cursor: default !important;
+}
+
+:host ::ng-deep .ngx-charts .textDataLabel,
+:host ::ng-deep .ngx-charts .label {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  fill: #1f2b1f !important;
+}
+
+:host ::ng-deep .pie-chart-shell ngx-charts-chart,
+:host ::ng-deep .pie-chart-shell .ngx-charts-outer {
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 1200px) {
+  .statistics-container {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+}
+
+@media (max-width: 900px) {
+  .chart-canvas {
+    height: 250px;
+  }
+
+  .pie-chart-shell {
+    width: 280px;
+    height: 240px;
+  }
+}
