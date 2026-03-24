@@ -34,6 +34,7 @@
     "@mescius/wijmo.angular2.chart.map": "^5.20252.42",
     "@mescius/wijmo.angular2.core": "^5.20252.42",
     "@mescius/wijmo.angular2.input": "^5.20252.42",
+    "@swimlane/ngx-charts": "^23.1.0",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
     "echarts": "^6.0.0",
