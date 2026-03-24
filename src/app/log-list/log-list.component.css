@@ -32,18 +32,16 @@ h1 {
 
 .diagrams-panel {
   background: #f5f5f5;
-  padding: 40px;
+  width: min(100%, 900px);
+  padding: 14px 16px 10px;
   border-radius: var(--radius);
-  margin-bottom: 24px;
-  min-height: 350px;
+  margin: 0 auto 20px;
+  min-height: auto;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   border: 1px solid #e0e0e0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  color: #999;
-  font-size: 14px;
-  text-align: center;
 }
 
 .filters-row {
