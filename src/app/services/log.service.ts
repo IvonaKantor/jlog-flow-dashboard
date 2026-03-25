@@ -14,8 +14,7 @@ export class LogService {
   private buildParams(
     filters?: LogFilters,
     pageSize?: number,
-    pageIndex?: number,
-    useCommaSeparatedLevels = true
+    pageIndex?: number
   ): HttpParams {
     let params = new HttpParams();
 
@@ -69,42 +68,18 @@ export class LogService {
     return params;
   }
 
-  getLogs(pageSize?: number, pageIndex?: number): Observable<Log[]> {
-    const params = this.buildParams(undefined, pageSize, pageIndex);
-    return this.http.get<LogResponse>(this.apiUrl, {params}).pipe(
-      map(response => response.items)
-    );
-  }
-
   getLogsResponse(pageSize?: number, pageIndex?: number): Observable<LogResponse> {
     const params = this.buildParams(undefined, pageSize, pageIndex);
     return this.http.get<LogResponse>(this.apiUrl, {params});
   }
 
-  getFilteredLogs(filters: LogFilters, pageSize?: number, pageIndex?: number): Observable<Log[]> {
-    const params = this.buildParams(filters, pageSize, pageIndex, true);
-
-    return this.http.get<LogResponse>(this.apiUrl, {params}).pipe(
-      map(response => response.items),
-      catchError(err => {
-        if (filters.level && filters.level.length > 1) {
-          const fallbackParams = this.buildParams(filters, pageSize, pageIndex, false);
-          return this.http.get<LogResponse>(this.apiUrl, {params: fallbackParams}).pipe(
-            map(response => response.items)
-          );
-        }
-        return throwError(() => err);
-      })
-    );
-  }
-
   getFilteredLogsResponse(filters: LogFilters, pageSize?: number, pageIndex?: number): Observable<LogResponse> {
-    const params = this.buildParams(filters, pageSize, pageIndex, true);
+    const params = this.buildParams(filters, pageSize, pageIndex);
 
     return this.http.get<LogResponse>(this.apiUrl, {params}).pipe(
       catchError(err => {
         if (filters.level && filters.level.length > 1) {
-          const fallbackParams = this.buildParams(filters, pageSize, pageIndex, false);
+          const fallbackParams = this.buildParams(filters, pageSize, pageIndex);
           return this.http.get<LogResponse>(this.apiUrl, {params: fallbackParams});
         }
         return throwError(() => err);
