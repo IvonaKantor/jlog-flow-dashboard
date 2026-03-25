@@ -47,3 +47,14 @@ export interface LogFilters {
   endDate?: string;
   search?: string;
 }
+
+export interface LogSearchRequest {
+  level?: string[];
+  serviceName?: string;
+  hostName?: string;
+  fromDate?: string;
+  toDate?: string;
+  search?: string;
+  pageSize: number;
+  pageIndex: number;
+}
