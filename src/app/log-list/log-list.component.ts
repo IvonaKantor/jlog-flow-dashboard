@@ -15,7 +15,6 @@ import {StatisticsComponent} from '../components/statistics/statistics.component
   styleUrls: ['./log-list.component.css']
 })
 export class LogListComponent implements OnInit {
-  logs: Log[] = [];
   filteredLogs: Log[] = [];
   services: string[] = [];
   hosts: string[] = [];
@@ -155,10 +154,8 @@ export class LogListComponent implements OnInit {
   }
 
   private applyLoadedLogs(data: Log[]) {
-    // Ensure newest logs appear first (some backends return oldest-first per page).
     const sorted = this.sortLogsByTimestampDesc(data);
 
-    this.logs = sorted;
     this.filteredLogs = sorted;
     this.updatePagination();
     this.loading = false;
