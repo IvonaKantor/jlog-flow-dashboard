@@ -77,7 +77,15 @@ export class LogListComponent implements OnInit {
           return;
         }
 
-        this.logService.getLogsResponse(pageSize, lastPageIndex).subscribe({
+        const oldestFirst = this.isOldestFirst(response.items);
+        const targetPageIndex = oldestFirst ? lastPageIndex : 0;
+
+        if (targetPageIndex === 0) {
+          this.applyLoadedLogs(response.items);
+          return;
+        }
+
+        this.logService.getLogsResponse(pageSize, targetPageIndex).subscribe({
           next: (lastPageResponse) => this.applyLoadedLogs(lastPageResponse.items),
           error: (err) => this.handleLoadError(err)
         });
@@ -103,9 +111,7 @@ export class LogListComponent implements OnInit {
     this.logService.getFilteredLogsResponse(requestFilters, pageSize, 0).subscribe({
       next: (response) => {
         const lastPageIndex = Math.max(0, response.pageCount - 1);
-        const startPageIndex = hasDateFilter
-          ? 0
-          : Math.max(0, lastPageIndex - (maxPagesToScan - 1));
+        const oldestFirst = this.isOldestFirst(response.items);
 
         const pageIndices: number[] = [];
         if (hasDateFilter) {
@@ -113,8 +119,16 @@ export class LogListComponent implements OnInit {
             pageIndices.push(i);
           }
         } else {
-          for (let i = lastPageIndex; i >= startPageIndex; i--) {
-            pageIndices.push(i);
+          if (oldestFirst) {
+            const startPageIndex = Math.max(0, lastPageIndex - (maxPagesToScan - 1));
+            for (let i = lastPageIndex; i >= startPageIndex; i--) {
+              pageIndices.push(i);
+            }
+          } else {
+            const endPageIndex = Math.min(lastPageIndex, maxPagesToScan - 1);
+            for (let i = 0; i <= endPageIndex; i++) {
+              pageIndices.push(i);
+            }
           }
         }
 
@@ -163,6 +177,21 @@ export class LogListComponent implements OnInit {
       const tb = b.timestamp ? new Date(b.timestamp).getTime() : 0;
       return tb - ta;
     });
+  }
+
+  private isOldestFirst(logs: Log[]): boolean {
+    if (!logs || logs.length < 2) {
+      return true;
+    }
+
+    const first = new Date(logs[0].timestamp).getTime();
+    const last = new Date(logs[logs.length - 1].timestamp).getTime();
+
+    if (!Number.isFinite(first) || !Number.isFinite(last)) {
+      return true;
+    }
+
+    return first <= last;
   }
 
   private applyClientSideFilters(logs: Log[], filters: LogFilters): Log[] {
