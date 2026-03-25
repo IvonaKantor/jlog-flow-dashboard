@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable, map, catchError, throwError} from 'rxjs';
-import {Log, LogResponse, LogFilters} from '../models/log.model';
+import {Log, LogResponse, LogFilters, LogSearchRequest} from '../models/log.model';
 
 @Injectable({
   providedIn: 'root'
@@ -110,6 +110,60 @@ export class LogService {
         return throwError(() => err);
       })
     );
+  }
+
+  private buildSearchBody(
+    filters: LogFilters,
+    pageSize: number,
+    pageIndex: number
+  ): LogSearchRequest {
+    if (pageSize < 1) {
+      throw new Error(`Invalid pageSize: ${pageSize}. Must be at least 1.`);
+    }
+    if (pageIndex < 0) {
+      throw new Error(`Invalid pageIndex: ${pageIndex}. Must be 0 or greater.`);
+    }
+
+    const body: LogSearchRequest = {pageSize, pageIndex};
+
+    if (filters.level && filters.level.length > 0) {
+      body.level = filters.level;
+    }
+    if (filters.serviceName) {
+      body.serviceName = filters.serviceName;
+    }
+    if (filters.hostName) {
+      body.hostName = filters.hostName;
+    }
+    if (filters.startDate) {
+      const from = new Date(filters.startDate);
+      if (!isNaN(from.getTime())) {
+        body.fromDate = from.toISOString();
+      }
+    }
+    if (filters.endDate) {
+      const to = new Date(new Date(filters.endDate).getTime() + 999);
+      if (!isNaN(to.getTime())) {
+        body.toDate = to.toISOString();
+      }
+    }
+    if (filters.search) {
+      body.search = filters.search;
+    }
+
+    return body;
+  }
+
+  searchLogs(filters: LogFilters, pageSize: number, pageIndex: number): Observable<Log[]> {
+    const body = this.buildSearchBody(filters, pageSize, pageIndex);
+    return this.http.post<LogResponse>(`${this.apiUrl}/search`, body).pipe(
+      map(response => response.items)
+    );
+  }
+
+  searchLogsResponse(filters: LogFilters, pageSize: number, pageIndex: number): Observable<LogResponse> {
+    const body = this.buildSearchBody(filters, pageSize, pageIndex);
+    return this.http.post<LogResponse>(`${this.apiUrl}/search`, body);
   }
 
   getServices(): Observable<string[]> {
