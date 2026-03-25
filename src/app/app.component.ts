@@ -21,6 +21,4 @@ import { LogListComponent } from './log-list/log-list.component';
     }
   `]
 })
-export class AppComponent {
-  title = 'jlog-flow-dashboard';
-}
+export class AppComponent {}
