@@ -46,8 +46,6 @@ export class StatisticsComponent implements OnChanges {
     'DEBUG': '#58a824'
   };
 
-  constructor() {}
-
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['filteredLogs']) {
       this.calculateStatistics();
@@ -124,11 +122,6 @@ export class StatisticsComponent implements OnChanges {
   }
 
   barDataLabelFormatting = (value: number): string => `${value}`;
-
-  pieLabelFormatting = (label: string): string => {
-    const item = this.pieChartData.find(entry => entry.name === label);
-    return item?.extra?.percentage !== undefined ? `${item.extra.percentage}%` : label;
-  };
 
   private calculatePieLabelPositions(data: ChartData[]): PieLabelPosition[] {
     const total = data.reduce((sum, item) => sum + item.value, 0);
