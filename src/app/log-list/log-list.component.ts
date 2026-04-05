@@ -281,6 +281,7 @@ export class LogListComponent implements OnInit {
   }
 
   applyFilters() {
+    this.setPage(0);
     this.loadLogs();
   }
 
