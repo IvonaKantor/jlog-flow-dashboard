@@ -40,7 +40,8 @@ export class LogListComponent implements OnInit {
   constructor(
     private readonly logService: LogService,
     private readonly logger: LoggerService
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
     this.loadLogs();
