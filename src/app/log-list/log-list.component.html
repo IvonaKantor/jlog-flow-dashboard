@@ -112,7 +112,20 @@
       <div class="loading-indicator">Loading data...</div>
     }
     @if (error) {
-      <div class="error-indicator">{{ error }}</div>
+      <div class="error-indicator">
+        <div class="error-message">
+          @if (serverUnavailable) {
+            <span class="server-error-icon">⚠️</span>
+          }
+          {{ error }}
+        </div>
+        @if (canRetry) {
+          <button class="btn btn-sm btn-outline-primary retry-btn" (click)="retryLoad()">
+            <span class="retry-icon">🔄</span>
+            Try Again
+          </button>
+        }
+      </div>
     }
     @if (!loading && !error) {
       <div class="info-indicator">
