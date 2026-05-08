@@ -1,15 +1,30 @@
-import {Injectable} from '@angular/core';
+import {Injectable, inject} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable, map, catchError, throwError} from 'rxjs';
 import {Log, LogResponse, LogFilters, LogSearchRequest} from '../models/log.model';
+import { KeycloakService } from 'keycloak-angular';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LogService {
   private readonly apiUrl = 'http://localhost:8080/v1/log';
+  private http = inject(HttpClient);
+  private keycloak = inject(KeycloakService);
 
-  constructor(private http: HttpClient) {}
+  private handleAuthError(error: any): Observable<never> {
+    if (error.status === 401 || error.status === 403) {
+      // Token might be expired, trigger login
+      if (this.keycloak) {
+        this.keycloak.login({
+          redirectUri: window.location.origin
+        });
+      } else {
+        console.error('KeycloakService not available for auth error handling');
+      }
+    }
+    return throwError(() => error);
+  }
 
   private buildParams(
     filters?: LogFilters,
@@ -70,7 +85,9 @@ export class LogService {
 
   getLogsResponse(pageSize?: number, pageIndex?: number): Observable<LogResponse> {
     const params = this.buildParams(undefined, pageSize, pageIndex);
-    return this.http.get<LogResponse>(this.apiUrl, {params});
+    return this.http.get<LogResponse>(this.apiUrl, {params}).pipe(
+      catchError(error => this.handleAuthError(error))
+    );
   }
 
   getFilteredLogsResponse(filters: LogFilters, pageSize?: number, pageIndex?: number): Observable<LogResponse> {
@@ -78,9 +95,14 @@ export class LogService {
 
     return this.http.get<LogResponse>(this.apiUrl, {params}).pipe(
       catchError(err => {
+        if (err.status === 401 || err.status === 403) {
+          return this.handleAuthError(err);
+        }
         if (filters.level && filters.level.length > 1) {
           const fallbackParams = this.buildParams(filters, pageSize, pageIndex);
-          return this.http.get<LogResponse>(this.apiUrl, {params: fallbackParams});
+          return this.http.get<LogResponse>(this.apiUrl, {params: fallbackParams}).pipe(
+            catchError(error => this.handleAuthError(error))
+          );
         }
         return throwError(() => err);
       })

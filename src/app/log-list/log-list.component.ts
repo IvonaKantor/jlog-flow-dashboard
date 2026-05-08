@@ -25,6 +25,8 @@ export class LogListComponent implements OnInit {
 
   loading = true;
   error: string | null = null;
+  serverUnavailable = false;
+  canRetry = false;
 
   filters: LogFilters = {
     level: [],
@@ -40,8 +42,7 @@ export class LogListComponent implements OnInit {
   constructor(
     private readonly logService: LogService,
     private readonly logger: LoggerService
-  ) {
-  }
+  ) {}
 
   ngOnInit() {
     this.loadLogs();
@@ -51,6 +52,8 @@ export class LogListComponent implements OnInit {
   loadLogs() {
     this.loading = true;
     this.error = null;
+    this.serverUnavailable = false;
+    this.canRetry = false;
 
     const hasActiveFilters = (this.filters.level?.length ?? 0) > 0 ||
       !!this.filters.serviceName ||
@@ -164,9 +167,39 @@ export class LogListComponent implements OnInit {
   }
 
   private handleLoadError(err: any) {
-    this.error = 'Failed to load logs: ' + err?.message;
     this.loading = false;
+    this.serverUnavailable = false;
+    this.canRetry = false;
+
+    // Check if it's a network/server error
+    if (!err?.status && err?.name === 'HttpErrorResponse') {
+      // Network error - server unreachable
+      this.serverUnavailable = true;
+      this.error = 'Unable to connect to the server. Please check if the backend service is running.';
+      this.canRetry = true;
+    } else if (err?.status >= 500) {
+      // Server error
+      this.serverUnavailable = true;
+      this.error = 'Server is currently unavailable. Please try again later.';
+      this.canRetry = true;
+    } else if (err?.status === 0) {
+      // Connection refused or network error
+      this.serverUnavailable = true;
+      this.error = 'Cannot connect to the server. Please check your network connection and ensure the backend service is running.';
+      this.canRetry = true;
+    } else if (err?.status >= 400 && err?.status < 500) {
+      // Client error - don't treat as server unavailable
+      this.error = `Request failed: ${err?.status} ${err?.statusText || 'Unknown error'}`;
+    } else {
+      // Other errors
+      this.error = err?.message || 'An unexpected error occurred while loading logs.';
+    }
+
     this.logger.error('Failed to load logs', err);
+  }
+
+  retryLoad() {
+    this.loadLogs();
   }
 
   private sortLogsByTimestampDesc(logs: Log[]): Log[] {
