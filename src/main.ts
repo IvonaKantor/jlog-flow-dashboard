@@ -21,7 +21,7 @@ bootstrapApplication(AppComponent, {
   providers: [
     provideKeycloak({
       config: {
-        url: 'http://localhost:8080/auth',
+        url: 'http://localhost:8787',
         realm: 'jlog',
         clientId: 'jlog-frontend'
       },
