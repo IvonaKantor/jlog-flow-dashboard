@@ -7,7 +7,7 @@ import {
   INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
   includeBearerTokenInterceptor,
   IncludeBearerTokenCondition,
-  KeycloakService
+  provideKeycloak
 } from 'keycloak-angular';
 
 const apiCondition = createInterceptorCondition<IncludeBearerTokenCondition>({
@@ -15,32 +15,24 @@ const apiCondition = createInterceptorCondition<IncludeBearerTokenCondition>({
   bearerPrefix: 'Bearer'
 });
 
-function initializeKeycloak(keycloak: KeycloakService) {
-  return () => keycloak.init({
-    config: {
-      url: 'http://localhost:8787',
-      realm: 'jlog',
-      clientId: 'jlog-frontend'
-    },
-    initOptions: {
-      onLoad: 'login-required',
-      //silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
-      //pkceMethod: 'S256',
-      checkLoginIframe: false,
-      //enableLogging: false
-    }
-  });
-}
+
 
 bootstrapApplication(AppComponent, {
   providers: [
-    KeycloakService,
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initializeKeycloak,
-      deps: [KeycloakService],
-      multi: true
-    },
+    provideKeycloak({
+      config: {
+        url: 'http://localhost:8080/auth',
+        realm: 'jlog',
+        clientId: 'jlog-frontend'
+      },
+      initOptions: {
+        onLoad: 'login-required',
+        silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
+        pkceMethod: 'S256',
+        checkLoginIframe: false,
+        enableLogging: true
+      }
+    }),
     {
       provide: INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
       useValue: [apiCondition]

@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { LogListComponent } from './log-list/log-list.component';
-import { KeycloakService } from 'keycloak-angular';
+import Keycloak from 'keycloak-js';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -105,14 +105,14 @@ import { CommonModule } from '@angular/common';
   `]
 })
 export class AppComponent implements OnInit {
-  private keycloak = inject(KeycloakService);
+  private keycloak = inject(Keycloak);
   isAuthenticated = false;
   userName = '';
 
   async ngOnInit() {
     try {
       if (this.keycloak) {
-        this.isAuthenticated = await this.keycloak.isLoggedIn();
+        this.isAuthenticated = !!this.keycloak.authenticated;
         if (this.isAuthenticated) {
           const profile = await this.keycloak.loadUserProfile();
           this.userName = profile.firstName || profile.username || 'User';
@@ -139,7 +139,7 @@ export class AppComponent implements OnInit {
 
   logout() {
     if (this.keycloak) {
-      this.keycloak.logout(window.location.origin);
+      this.keycloak.logout({ redirectUri: window.location.origin });
     } else {
       console.error('KeycloakService not available for logout');
     }

@@ -2,7 +2,7 @@ import {Injectable, inject} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable, map, catchError, throwError} from 'rxjs';
 import {Log, LogResponse, LogFilters, LogSearchRequest} from '../models/log.model';
-import { KeycloakService } from 'keycloak-angular';
+import Keycloak from 'keycloak-js';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +10,7 @@ import { KeycloakService } from 'keycloak-angular';
 export class LogService {
   private readonly apiUrl = 'http://localhost:8080/v1/log';
   private http = inject(HttpClient);
-  private keycloak = inject(KeycloakService);
+  private keycloak = inject(Keycloak);
 
   private handleAuthError(error: any): Observable<never> {
     if (error.status === 401 || error.status === 403) {
