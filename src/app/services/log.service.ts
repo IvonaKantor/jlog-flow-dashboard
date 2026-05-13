@@ -14,7 +14,6 @@ export class LogService {
 
   private handleAuthError(error: any): Observable<never> {
     if (error.status === 401 || error.status === 403) {
-      // Token might be expired, trigger login
       if (this.keycloak) {
         this.keycloak.login({
           redirectUri: window.location.origin
