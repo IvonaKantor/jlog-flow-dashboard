@@ -112,7 +112,7 @@ export class AppComponent implements OnInit {
   async ngOnInit() {
     try {
       if (this.keycloak) {
-        this.isAuthenticated = !!this.keycloak.authenticated;
+        this.isAuthenticated = this.keycloak.authenticated;
         if (this.isAuthenticated) {
           const profile = await this.keycloak.loadUserProfile();
           this.userName = profile.firstName || profile.username || 'User';
