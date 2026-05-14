@@ -171,27 +171,21 @@ export class LogListComponent implements OnInit {
     this.serverUnavailable = false;
     this.canRetry = false;
 
-    // Check if it's a network/server error
     if (!err?.status && err?.name === 'HttpErrorResponse') {
-      // Network error - server unreachable
       this.serverUnavailable = true;
       this.error = 'Unable to connect to the server. Please check if the backend service is running.';
       this.canRetry = true;
     } else if (err?.status >= 500) {
-      // Server error
       this.serverUnavailable = true;
       this.error = 'Server is currently unavailable. Please try again later.';
       this.canRetry = true;
     } else if (err?.status === 0) {
-      // Connection refused or network error
       this.serverUnavailable = true;
       this.error = 'Cannot connect to the server. Please check your network connection and ensure the backend service is running.';
       this.canRetry = true;
     } else if (err?.status >= 400 && err?.status < 500) {
-      // Client error - don't treat as server unavailable
       this.error = `Request failed: ${err?.status} ${err?.statusText || 'Unknown error'}`;
     } else {
-      // Other errors
       this.error = err?.message || 'An unexpected error occurred while loading logs.';
     }
 
