@@ -8,7 +8,7 @@ import Keycloak from 'keycloak-js';
   providedIn: 'root'
 })
 export class LogService {
-  private readonly apiUrl = 'http://localhost:8080/v1/log';
+  private readonly apiUrl = '/api/v1/log';
   private http = inject(HttpClient);
   private keycloak = inject(Keycloak);
 
