@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {CommonModule, NgOptimizedImage} from '@angular/common';
 import {FormsModule} from '@angular/forms';
+import {HttpErrorResponse} from '@angular/common/http';
 import {forkJoin} from 'rxjs';
 import {LogService} from '../services/log.service';
 import {Log, LogFilters} from '../models/log.model';
@@ -172,20 +173,28 @@ export class LogListComponent implements OnInit {
     this.serverUnavailable = false;
     this.canRetry = false;
 
-    if (!err?.status && err?.name === 'HttpErrorResponse') {
+    if (err instanceof HttpErrorResponse) {
+      if (err.status === 200 && err.error instanceof Error) {
+        this.error = 'Invalid JSON response from server. Check that the backend returns valid application/json.';
+      } else if (err.status === 200 && typeof err.error === 'string' && err.error.trim().startsWith('<')) {
+        this.error = 'Received HTML response instead of JSON. The proxy or backend endpoint may be misconfigured.';
+      } else if (err.status === 0) {
+        this.serverUnavailable = true;
+        this.error = 'Cannot connect to the server. Please check your network connection and ensure the backend service is running.';
+        this.canRetry = true;
+      } else if (err.status >= 500) {
+        this.serverUnavailable = true;
+        this.error = 'Server is currently unavailable. Please try again later.';
+        this.canRetry = true;
+      } else if (err.status >= 400 && err.status < 500) {
+        this.error = `Request failed: ${err.status} ${err.statusText || 'Unknown error'}`;
+      } else {
+        this.error = err.message || 'An unexpected error occurred while loading logs.';
+      }
+    } else if (!err?.status && err?.name === 'HttpErrorResponse') {
       this.serverUnavailable = true;
       this.error = 'Unable to connect to the server. Please check if the backend service is running.';
       this.canRetry = true;
-    } else if (err?.status >= 500) {
-      this.serverUnavailable = true;
-      this.error = 'Server is currently unavailable. Please try again later.';
-      this.canRetry = true;
-    } else if (err?.status === 0) {
-      this.serverUnavailable = true;
-      this.error = 'Cannot connect to the server. Please check your network connection and ensure the backend service is running.';
-      this.canRetry = true;
-    } else if (err?.status >= 400 && err?.status < 500) {
-      this.error = `Request failed: ${err?.status} ${err?.statusText || 'Unknown error'}`;
     } else {
       this.error = err?.message || 'An unexpected error occurred while loading logs.';
     }
