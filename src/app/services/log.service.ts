@@ -144,7 +144,10 @@ export class LogService {
       }
     }
     if (filters.search) {
-      body.search = filters.search;
+      const trimmedSearch = filters.search.trim();
+      if (trimmedSearch) {
+        body.search = trimmedSearch;
+      }
     }
 
     return body;
