@@ -6,7 +6,8 @@
         alt="JLog Flow Logo"
         class="logo"
         width="260"
-        height="80"
+        height="116"
+        priority
       >
     </div>
 
@@ -88,9 +89,12 @@
         <label>Search:</label>
         <input
           type="text"
+          name="search"
           [(ngModel)]="filters.search"
+          [ngModelOptions]="{standalone: true}"
           placeholder="Search within content"
           class="search-input"
+          (keydown.enter)="applyFilters()"
         >
       </div>
 
@@ -199,7 +203,7 @@
                   <span class="no-exception">-</span>
                 }
               </td>
-              <td>
+              <td class="mdc-cell">
                 @if (log.mdc && Object.keys(log.mdc).length > 0) {
                   <details class="mdc-details">
                     <summary>Context</summary>
