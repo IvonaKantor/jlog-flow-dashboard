@@ -3,7 +3,7 @@
   font-family: var(--font), serif;
   width: 100%;
   max-width: 1400px;
-  min-width: 800px;
+  min-width: auto;
   flex: 1 1 100%;
   margin: 0 auto;
   background: var(--surface);
@@ -32,7 +32,8 @@ h1 {
 
 .diagrams-panel {
   background: #f5f5f5;
-  width: min(100%, 900px);
+  width: 100%;
+  max-width: 900px;
   padding: 14px 16px 10px;
   border-radius: var(--radius);
   margin: 0 auto 20px;
@@ -243,7 +244,6 @@ h1 {
 
 .table-container {
   width: 100%;
-  min-width: 900px;
   overflow: auto;
   max-height: 520px;
   border-radius: 16px;
@@ -259,11 +259,17 @@ h1 {
 }
 
 .logs-table {
-  width: 100%;
-  min-width: 900px;
-  table-layout: fixed;
+  width: auto;
+  table-layout: auto;
   border-collapse: collapse;
   font-size: 14px;
+}
+
+.message-cell {
+  max-width: 220px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .logs-table th {
@@ -299,13 +305,6 @@ h1 {
   font-weight: 600;
   font-size: 12px;
   display: inline-block;
-  white-space: nowrap;
-}
-
-.message-cell {
-  max-width: 400px;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -385,6 +384,15 @@ h1 {
   font-size: 11px;
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+.no-exception,
+.no-mdc {
+  display: block;
+  text-align: center;
+  color: #555;
+  font-weight: 600;
+  font-size: 14px;
 }
 
 .empty-message {
@@ -482,8 +490,26 @@ h1 {
     min-width: auto;
   }
 
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .header-stats {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
   .table-container {
     min-width: auto;
+    max-width: 100%;
+  }
+
+  .logs-table {
+    min-width: 100%;
   }
 
   .filters-row {
@@ -515,7 +541,10 @@ h1 {
   }
 
   .message-cell {
-    max-width: 200px;
+    max-width: 220px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   .text-muted {
