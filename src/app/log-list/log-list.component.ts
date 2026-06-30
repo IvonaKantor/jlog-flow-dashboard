@@ -102,6 +102,11 @@ export class LogListComponent implements OnInit {
   private loadFilteredLogs() {
     const pageSize = this.pageSize;
 
+    if (this.filters.search && this.filters.search.trim()) {
+      this.loadSearchResults();
+      return;
+    }
+
     const multiLevelFilter = (this.filters.level?.length ?? 0) > 1;
     const allowedLevels = new Set(this.filters.level ?? []);
 
@@ -158,6 +163,25 @@ export class LogListComponent implements OnInit {
       error: (err) => this.handleLoadError(err)
     });
   }
+
+  private loadSearchResults() {
+    this.pageIndex = 0;
+    const pageSize = this.pageSize;
+    if (this.filters.search) {
+      this.filters.search = this.filters.search.trim();
+    }
+
+    this.logService.searchLogsResponse(this.filters, pageSize, this.pageIndex).subscribe({
+      next: (response) => {
+        this.filteredLogs = this.sortLogsByTimestampDesc(response.items ?? []);
+        this.updatePagination();
+        this.loading = false;
+        this.logger.debug('Search results loaded', {count: this.filteredLogs.length});
+      },
+      error: (err) => this.handleLoadError(err)
+    });
+  }
+
 
   private applyLoadedLogs(data: Log[]) {
     const sorted = this.sortLogsByTimestampDesc(data);
@@ -319,6 +343,7 @@ export class LogListComponent implements OnInit {
   }
 
   applyFilters() {
+    this.filters.search = this.filters.search?.trim() ?? '';
     this.setPage(0);
     this.loadLogs();
   }
